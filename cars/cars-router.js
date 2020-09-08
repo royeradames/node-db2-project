@@ -6,8 +6,13 @@ const router = express.Router()
 router.get('/', (req, res) => {
     db('cars')
         .then(carsList => {
-            if (carsList) res.status(200).json(carsList)
-            else res.status(404).json({ message: `No cars on the database` })
+            const carListExist = carsList.length
+            console.log(carListExist)
+            if (carListExist) {
+                res.status(200).json(carsList)
+            } else {
+                res.status(404).json({ message: `No cars on the database` })
+            }
         })
 })
 router.post('/', validateIncomingData, (req, res) => {
@@ -32,6 +37,21 @@ router.put('/:id', validateId, (req, res) => {
     db('cars')
         .where('id', req.params.id)
         .update(req.body)
+        .returning('id')
+        .then(count => {
+            if (count) {
+                res.status(201).json(count)
+            } else {
+                res.status(404).json({ message: `no changes where made` })
+            }
+        })
+
+
+})
+router.delete('/:id', validateId, (req, res) => {
+    db('cars')
+        .where('id', req.params.id)
+        .del()
         .returning('id')
         .then(count => {
             if (count) {

@@ -3,7 +3,13 @@ const db = require('../data/connections')
 
 // create router
 const router = express.Router()
-// router.get('/', )
+router.get('/', (req, res)=> {
+    db('cars')
+    .then(carsList => {
+        if(carsList) res.status(200).json(carsList)
+        else res.status(404).json({message: `No cars on the database`})
+    })
+})
 router.post('/', validateIncomingData, (req, res) => {
     const newEntry = {
         VIN: req.body.VIN,

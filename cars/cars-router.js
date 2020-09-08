@@ -3,12 +3,12 @@ const db = require('../data/connections')
 
 // create router
 const router = express.Router()
-router.get('/', (req, res)=> {
+router.get('/', (req, res) => {
     db('cars')
-    .then(carsList => {
-        if(carsList) res.status(200).json(carsList)
-        else res.status(404).json({message: `No cars on the database`})
-    })
+        .then(carsList => {
+            if (carsList) res.status(200).json(carsList)
+            else res.status(404).json({ message: `No cars on the database` })
+        })
 })
 router.post('/', validateIncomingData, (req, res) => {
     const newEntry = {
@@ -21,14 +21,28 @@ router.post('/', validateIncomingData, (req, res) => {
     db('cars')
         .insert(newEntry)
         .returning('id')
-        .then( count => {
-            if(count) res.status(201).json(count)
+        .then(count => {
+            if (count) res.status(201).json(count)
         })
-        .catch( error =>{
+        .catch(error => {
             res.status(500).json(error.message)
         })
 })
+router.put('/:id', validateId, (req, res) => {
+    db('cars')
+        .where('id', req.params.id)
+        .update(req.body)
+        .returning('id')
+        .then(count => {
+            if (count) {
+                res.status(201).json(count)
+            } else {
+                res.status(404).json({ message: `no changes where made` })
+            }
+        })
 
+
+})
 
 // local middleware
 function validateIncomingData(req, res, next) {
@@ -41,5 +55,19 @@ function validateIncomingData(req, res, next) {
     if (missingRequireData) res.status(404).json({ message: `missing require data` })
 
     next()
+}
+function validateId(req, res, next) {
+
+    db('cars')
+        .where('id', req.params.id)
+        .then(car => {
+            if (car) {
+                req.car = car
+                next()
+            } else res.status(404).json({ error: `Id is not found` })
+        })
+        .catch(error => {
+            res.status(500).json(error.message)
+        })
 }
 module.exports = router

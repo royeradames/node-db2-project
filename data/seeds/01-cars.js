@@ -10,6 +10,12 @@ exports.seed = function (knex) {
           Mileage: 176746,
           Make: 'Mercedes-Benz',
           Model: 'SL-Class',
+        },
+        {
+          VIN: '8C4505606P1535YF3',
+          Mileage: 190447,
+          Make: 'Hyundai',
+          Model: 'Sonata',
         }
       ]);
     });

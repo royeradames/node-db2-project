@@ -33,6 +33,21 @@ router.post('/', validateIncomingData, (req, res) => {
             res.status(500).json(error.message)
         })
 })
+router.get('/:id', validateId, (req, res) => {
+    db('cars')
+    .where('id', req.params.id)
+    .then(car => {
+        const carListExist = car.length
+        console.log(carListExist)
+        if (carListExist) {
+            res.status(200).json(car)
+        } else {
+            res.status(404).json({ message: `No cars on the database` })
+        }
+    })
+
+
+})
 router.put('/:id', validateId, (req, res) => {
     db('cars')
         .where('id', req.params.id)
